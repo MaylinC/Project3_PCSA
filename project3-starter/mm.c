@@ -2,13 +2,19 @@
 #include<stdlib.h>
 #include<time.h>
 #include "mm.h"
+//#include <sys/cachectl.h>
 
 
 
 // Task 1: Flush the cache so that we can do our measurement :)
 void flush_all_caches()
 {
-	// Your code goes here
+	//printf("huge_matrixA is at address %p \n",huge_matrixA);
+	//printf("end of huge_matrixA is %p \n", huge_matrixA + (sizeof(long)*(long)SIZEX*(long)SIZEY-1) + 1); 
+	__builtin___clear_cache(huge_matrixA, huge_matrixA + (sizeof(long)*(long)SIZEX*(long)SIZEY-1) + 1); 
+	__builtin___clear_cache(huge_matrixB, huge_matrixB + (sizeof(long)*(long)SIZEX*(long)SIZEY-1) + 1);
+	__builtin___clear_cache(huge_matrixC, huge_matrixC + (sizeof(long)*(long)SIZEX*(long)SIZEY-1) + 1);
+
 }
 
 void load_matrix_base()
