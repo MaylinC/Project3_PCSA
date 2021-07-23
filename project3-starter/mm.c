@@ -2,7 +2,6 @@
 #include<stdlib.h>
 #include<time.h>
 #include "mm.h"
-//#include <sys/cachectl.h>
 
 
 
@@ -42,19 +41,25 @@ void free_all()
 
 void multiply_base()
 {
-	    long a, b, c; 
+	
+	long a, b, c; 
 
-    for (a = 0; a < (long)SIZEX; a++) {
+    for (a = 0; a < (long)SIZEY; a++) {
         for (b = 0; b < (long)SIZEY; b++) {
             for (c = 0; c < (long)SIZEY; c++) {
-                huge_matrixC[a*(long)SIZEY+b] +=  huge_matrixA[a*(long)SIZEY+c] * huge_matrixB[c*(long)SIZEY+b]; 
+				long indx1 = a*(long)SIZEY+b; 
+                long indx2 = a*(long)SIZEY+c; 
+                long indx3 = c*(long)SIZEY+b; 
+                huge_matrixC[indx1] +=  huge_matrixA[indx2] * huge_matrixB[indx3]; 
             }
         }
     } 
 
-    for (int i = 0; i < ((long)SIZEX*(long)SIZEY); i++) {
-        printf("%d \n", huge_matrixC[i]); 
-    } 
+	// printf("Output \n"); 
+
+    // for (int i = 0; i < ((long)SIZEX*(long)SIZEY); i++) { 
+    //     printf("%d \n", huge_matrixC[i]); 
+    // } 
 	
 }
 
@@ -66,7 +71,7 @@ void compare_results()
 	for(i=0;i<((long)SIZEX*(long)SIZEY);i++)
 	{
 		fscanf(fout, "%ld", &temp1);
-		fscanf(fout, "%ld", &temp2);
+		fscanf(ftest, "%ld", &temp2);
 		if(temp1!=temp2)
 		{
 			printf("Wrong solution!");
@@ -79,22 +84,63 @@ void compare_results()
 
 void write_results()
 {
-	// Your code here
-	//
-	// Basically, make sure the result is written on fout
-	// Each line represent value in the X-dimension of your matrix
+	if (fout == NULL)
+    {
+        printf("Error opening the file %s", "./input2.in");
+        return -1;
+    }
+
+	for (int i = 0; i < ((long)SIZEX*(long)SIZEY); i++) { 
+        fprintf(fout, "%d \n", huge_matrixC[i]); 
+    } 
 }
 
 void load_matrix()
 {
-	// Your code here
+	fin1 = fopen("./input1.in","r");
+	fin2 = fopen("./input2.in","r");
+	fout = fopen("./out.in","w");
+	ftest = fopen("./reference.in","r");
+	load_matrix_base(); 
 }
 
 
 
-void multiply()
-{
-	// Your code here
+void multiply(){
+
+	long i, j, k, kk, jj;
+	long sum; 
+	int en = (SIZEY/2) * (SIZEY/(SIZEY/2)); 
+
+	// printf("hell0 \n"); 
+
+	for (kk = 0; kk < en; kk += SIZEY/2) {
+		for (jj = 0; jj < en; jj += SIZEY/2) {
+			for (i = 0; i < SIZEY; i++) {
+				for (j = jj; j < jj + (SIZEY/2); j++) {
+					sum = huge_matrixC[i*(long)SIZEY+j];
+					for (k = kk; k < kk + (SIZEY/2); k++) {
+						sum += huge_matrixA[i*(long)SIZEY+k] * huge_matrixB[k*(long)SIZEY+j]; 
+					}
+					huge_matrixC[i*(long)SIZEY+j] = sum;
+				}
+			}
+		}		
+	}
+
+	// for (int i = 0; i < ((long)SIZEX*(long)SIZEY); i++) { 
+    //     printf("%d \n", huge_matrixA[i]); 
+    // } 
+
+	// printf("matrix B \n"); 
+
+	// for (int i = 0; i < ((long)SIZEX*(long)SIZEY); i++) { 
+    //     printf("%d \n", huge_matrixB[i]); 
+    // } 
+
+	// for (int i = 0; i < ((long)SIZEX*(long)SIZEY); i++) { 
+    //     printf("%d \n", huge_matrixC[i]); 
+    // } 
 }
 
 int main()
@@ -110,7 +156,6 @@ int main()
 	fout = fopen("./out.in","w");
 	ftest = fopen("./reference.in","r");
 	
-
 	flush_all_caches();
 
 	s = clock();
